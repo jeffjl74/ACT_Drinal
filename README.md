@@ -42,7 +42,7 @@ Details are provided below.
 2. To go to the download page, click the following link: [Releases Page](https://github.com/jeffjl74/ACT_Drinal/releases)
 3. On the "Releases" page, for the __Latest release__, click the "Assets 3" title to expand the assets (if needed). 
 The page with the expanded view will list three files.
-4. Click the `Parsers.dll` link, download and save the file. 
+4. Click the `Drinal.dll` link, download and save the file. 
 	* Pay attention to where the file was downloaded. 
 It will typically be in your "Downloads" folder.
 In the Chrome browser, you can select _Show in folder_ after the download to open the folder in File Explorer.
