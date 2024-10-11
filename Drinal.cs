@@ -208,6 +208,7 @@ namespace ACT_Drinal
         bool inZone = false;
         string githubProject = "ACT_Drinal";
         string githubOwner = "jeffjl74";
+        string githubDownload = "Drinal.dll";
 
 		#region IActPluginV1 Members
 		public void InitPlugin(TabPage pluginScreenSpace, Label pluginStatusText)
@@ -363,7 +364,7 @@ namespace ACT_Drinal
                     DialogResult result = MessageBox.Show(
                           @"There is an update for Drinal Curse. "
                         + @"Update it now?"
-                        , "Trigger Tree New Version", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+                        , "Drinal Curse New Version", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
                     if (result == DialogResult.Yes)
                     {
                         Task<FileInfo> ftask = Task.Run(() => { return GetRemoteFileAsync(); });
@@ -432,7 +433,7 @@ namespace ACT_Drinal
                 {
                     ProductInfoHeaderValue hdr = new ProductInfoHeaderValue(githubProject, "1");
                     client.DefaultRequestHeaders.UserAgent.Add(hdr);
-                    string dl = string.Format("https://github.com/{0}/{1}/releases/latest/download/{2}.cs", githubOwner, githubProject, githubProject);
+                    string dl = string.Format("https://github.com/{0}/{1}/releases/latest/download/{2}", githubOwner, githubProject, githubDownload);
                     HttpResponseMessage response = await client.GetAsync(dl);
                     if (response.IsSuccessStatusCode)
                     {
