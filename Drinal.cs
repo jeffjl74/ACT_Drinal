@@ -17,7 +17,7 @@ using System.Diagnostics;
 [assembly: AssemblyTitle("Drinal Curse Plugin")]
 [assembly: AssemblyDescription("Track the Drinal avatar curse cure timing")]
 [assembly: AssemblyCompany("Mineeme")]
-[assembly: AssemblyVersion("1.0.0.0")]
+[assembly: AssemblyVersion("1.0.0.1")]
 
 namespace ACT_Drinal
 {
