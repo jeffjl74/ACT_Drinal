@@ -11,7 +11,8 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Net.Http;
 using System.Net.Http.Headers;
-using System.IO.Compression;
+using System.Collections.Generic;
+using System.Diagnostics;
 
 [assembly: AssemblyTitle("Drinal Curse Plugin")]
 [assembly: AssemblyDescription("Track the Drinal avatar curse cure timing")]
@@ -84,9 +85,9 @@ namespace ACT_Drinal
             this.label2.AutoSize = true;
             this.label2.Location = new System.Drawing.Point(3, 0);
             this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(32, 13);
+            this.label2.Size = new System.Drawing.Size(37, 13);
             this.label2.TabIndex = 2;
-            this.label2.Text = "Zone";
+            this.label2.Text = "Zones";
             // 
             // textBoxZone1
             // 
@@ -201,7 +202,10 @@ namespace ACT_Drinal
         string cureWho = "curse";
         enum eStates { Idle, Reset, Started }
         eStates state = eStates.Idle;
-        System.Timers.Timer timer1 = new System.Timers.Timer();
+        System.Timers.Timer timerAlert = new System.Timers.Timer();
+        System.Timers.Timer timerZone = new System.Timers.Timer();
+        List<string> zones = new List<string>();
+        bool inZone = false;
         string githubProject = "ACT_Drinal";
         string githubOwner = "jeffjl74";
 
@@ -215,19 +219,24 @@ namespace ACT_Drinal
 			LoadSettings();
 
             //defaults for first time start
-            if (zone1 == null)
-                textBoxZone1.Text = "Celebration Avatar Challenge: \\#00FF00Drinal\\/c [Raid]";
+            if (zones.Count == 0)
+                textBoxZone1.Text = "Celebration Avatar Challenge: \\#00FF00Drinal\\/c [Raid] | Loping Plains";
             if (start1 == null)
                 textBoxStart1.Text = "Drinal's Power Over Death hits (?<victim>\\w+)";
             if(reset1 == null)
                 textBoxReset1.Text = "#00FF00\"Power Over Death\" has been successfully removed from (\\w+)";
             if (alert1 == null)
                 textBoxAlert1.Text = "cure ${victim}";
-            if (timer1.Interval == 100)
+            if (timerAlert.Interval == 100)
                 numericUpDownAlert.Value = 17;
 
-            timer1.SynchronizingObject = ActGlobals.oFormActMain;
-            timer1.Elapsed += Timer1_Elapsed;
+            timerAlert.SynchronizingObject = ActGlobals.oFormActMain;
+            timerAlert.Elapsed += TimerAlert_Elapsed;
+
+            timerZone.SynchronizingObject = ActGlobals.oFormActMain;
+            timerZone.Elapsed += TimerZone_Elapsed;
+            timerZone.Interval = 1000;
+            timerZone.Enabled = true;
 
             // Create some sort of parsing event handler.  After the "+=" hit TAB twice and the code will be generated for you.
             ActGlobals.oFormActMain.OnLogLineRead += OFormActMain_OnLogLineRead;
@@ -254,9 +263,9 @@ namespace ACT_Drinal
 
         #endregion
 
-        private void Timer1_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
+        private void TimerAlert_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
         {
-            timer1.Stop();
+            timerAlert.Stop();
             if (matchStart != null)
             {
                 string alert = alert1;
@@ -278,6 +287,15 @@ namespace ACT_Drinal
                 //Debug.WriteLine(alert);
             }
         }
+
+        private void TimerZone_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
+        {
+            if (zones.Contains(ActGlobals.oFormActMain.CurrentZone))
+                inZone = true;
+            else
+                inZone = false;
+        }
+
         private void BuildSpellTimer()
         {
             int spellTime = (int)numericUpDownAlert.Value;
@@ -299,14 +317,14 @@ namespace ACT_Drinal
 
         private void OFormActMain_OnLogLineRead(bool isImport, LogLineEventArgs logInfo)
         {
-            if (ActGlobals.oFormActMain.CurrentZone == zone1)
+            if (inZone)
             {
                 Match match = reset1.Match(logInfo.logLine);
                 if (match.Success)
                 {
                     state = eStates.Idle;
-                    timer1.Stop();
-                    timer1.Interval = timer1.Interval;
+                    timerAlert.Stop();
+                    timerAlert.Interval = timerAlert.Interval;
                     //if(match.Groups.Count > 1)
                     //    Debug.WriteLine(match.Groups[1].Value.ToString() + " cured");
                 }
@@ -317,9 +335,9 @@ namespace ACT_Drinal
                     {
                         matchStart = match;
                         state = eStates.Started;
-                        timer1.Stop();
-                        timer1.Interval = timer1.Interval;
-                        timer1.Start();
+                        timerAlert.Stop();
+                        timerAlert.Interval = timerAlert.Interval;
+                        timerAlert.Start();
                         if(matchStart.Groups.Count > 1)
                             cureWho = matchStart.Groups[1].Value.ToString();
                         ActGlobals.oFormSpellTimers.NotifySpell(timerCategory, timerName, false, cureWho, true);
@@ -483,6 +501,9 @@ namespace ACT_Drinal
 
         private void textBoxZone1_TextChanged(object sender, EventArgs e)
         {
+            string[] zs = textBoxZone1.Text.Split('|');
+            foreach(string s in zs)
+                zones.Add(s.Trim());
             zone1 = textBoxZone1.Text;
         }
 
@@ -514,8 +535,8 @@ namespace ACT_Drinal
 
         private void numericUpDownAlert_ValueChanged(object sender, EventArgs e)
         {
-            timer1.Interval = (int)numericUpDownAlert.Value * 1000;
-            timer1.Enabled = true;
+            timerAlert.Interval = (int)numericUpDownAlert.Value * 1000;
+            timerAlert.Enabled = true;
             BuildSpellTimer();
         }
 

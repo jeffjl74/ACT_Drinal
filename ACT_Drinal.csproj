@@ -8,7 +8,7 @@
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>ACT_Drinal</RootNamespace>
-    <AssemblyName>ACT_Drinal</AssemblyName>
+    <AssemblyName>Drinal</AssemblyName>
     <TargetFrameworkVersion>v4.8.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <StartupObject>
